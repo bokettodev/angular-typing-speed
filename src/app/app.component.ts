@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 @Component({
   selector: 'ts-root',
-  templateUrl: './app.component.html',
+  template: `<ts-typing-speed></ts-typing-speed>`,
   styleUrls: ['./app.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
