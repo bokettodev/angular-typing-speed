@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import {ChangeDetectionStrategy, Component} from '@angular/core';
 
 @Component({
   selector: 'ts-typing-speed',
@@ -6,4 +6,5 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
   styleUrls: ['./typing-speed.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TypingSpeedComponent {}
+export class TypingSpeedComponent {
+}

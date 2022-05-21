@@ -1,0 +1,21 @@
+<section (click)="inputElementRef.nativeElement.focus()">
+  <p class="words">
+    <!-- Entered words -->
+    <span *ngFor="let item of enteredWords" [class.word--incorrect]="!item.correct"
+          class="word word--correct">{{ item.word }}</span>
+
+    <!-- Entering word -->
+    <span [class.word--incorrect]="!enteringWord?.correct"
+          class="word word--entering">{{ enteringWord?.entered }}</span>
+  </p>
+
+  <input #inputRef (input)="onInput()" (keydown)="onKeyDown($event)" autofocus type="text"/>
+
+  <p class="words">
+    <!-- Entering word -->
+    <span *ngIf="enteringWord?.target" class="word">{{ enteringWord!.toEnter }}</span>
+
+    <!-- Words to enter -->
+    <span *ngFor="let word of wordsToEnter" class="word">{{ word }}</span>
+  </p>
+</section>
