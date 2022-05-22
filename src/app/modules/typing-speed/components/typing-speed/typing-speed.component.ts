@@ -13,6 +13,7 @@ export class TypingSpeedComponent {
   accuracyPercentage = 0;
 
   onEnteredWordsUpdate(enteredWords: EnteredWord[]): void {
+    enteredWords = enteredWords || [];
     const correctWords = enteredWords.filter((w) => w.correct).map((w) => w.word);
     this.wordsPerMinute = correctWords.length;
     this.charsPerMinute = correctWords.join('').length;

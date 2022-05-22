@@ -12,8 +12,9 @@ import {
   ViewChild
 } from "@angular/core";
 import {EnteredWord} from "@modules/typing-speed/interfaces";
-import {WORDS_EN} from "@shared/constants";
+import {INSPIRATIONAL_PHRASES, WORDS_EN} from "@shared/constants";
 import {interval, startWith, SubscriptionLike} from "rxjs";
+import {randomItemFromArray, shuffleArray} from "@shared/functions";
 
 @Component({
   selector: 'ts-input',
@@ -30,12 +31,14 @@ export class InputComponent implements OnDestroy {
   @HostBinding('style.--progressBarHiddenLengthPx')
   progressBarHiddenLengthPx = 0;
 
-  readonly enteredWords: EnteredWord[] = [];
-  readonly wordsToEnter = WORDS_EN.slice(0, 15);
+  readonly wordsList = shuffleArray(WORDS_EN);
+  readonly wordsToEnter = this.wordsList.slice(0, 15);
+  enteredWords?: EnteredWord[];
   enteringWord?: { entered: string, toEnter: string, target: string, correct?: boolean };
   timerIntervalSub?: SubscriptionLike;
+  restartText?: string;
 
-  constructor(@SkipSelf() private readonly parentCdRef: ChangeDetectorRef) {
+  constructor(@SkipSelf() private readonly parentCdRef: ChangeDetectorRef, private readonly cdRef: ChangeDetectorRef) {
   }
 
   @HostListener('window:resize')
@@ -44,24 +47,35 @@ export class InputComponent implements OnDestroy {
     return (this.progressBarElementRef.nativeElement.clientWidth + this.progressBarElementRef.nativeElement.clientHeight) * 2;
   }
 
+  get disabled(): boolean {
+    return !!this.restartText;
+  }
+
   ngOnDestroy(): void {
-    this.timerIntervalSub?.unsubscribe();
+    this.stopInterval();
   }
 
   onInput(): void {
+    if (this.disabled) {
+      return;
+    }
+
     const letter = this.inputElementRef.nativeElement.value.trim();
     this.inputElementRef.nativeElement.value = '';
     if (!letter) {
       return;
     }
-    this.addLetterToEnteringWord(letter);
 
+    this.addLetterToEnteringWord(letter);
     if (!this.timerIntervalSub) {
       this.startInterval();
     }
   }
 
   onKeyDown(event: KeyboardEvent): void {
+    if (this.disabled) {
+      return;
+    }
     switch (event.key) {
       case 'Backspace': {
         this.removeLastLetterFromEnteringWord();
@@ -74,9 +88,28 @@ export class InputComponent implements OnDestroy {
     }
   }
 
+  reset(): void {
+    this.enteredWords = undefined;
+    this.enteringWord = undefined;
+    this.onEnteredWordsUpdate.emit(this.enteredWords);
+    this.progressBarHiddenLengthPx = 0;
+    this.restartText = undefined;
+  }
+
   @HostListener('click')
   private focusOnInput(): void {
+    if (this.disabled) {
+      return;
+    }
+    this.inputFocus();
+  }
+
+  private inputFocus(): void {
     this.inputElementRef.nativeElement.focus();
+  }
+
+  private inputBlur(): void {
+    this.inputElementRef.nativeElement.blur();
   }
 
   private addLetterToEnteringWord(letter: string): void {
@@ -112,17 +145,22 @@ export class InputComponent implements OnDestroy {
     if (!this.enteringWord?.entered) {
       return;
     }
+
+    if (!this.enteredWords) {
+      this.enteredWords = [];
+    }
     this.enteredWords.push({
       word: this.enteringWord.entered,
       correct: this.enteringWord.entered === this.enteringWord.target
     });
+
     this.onEnteredWordsUpdate.emit(this.enteredWords);
     this.enteringWord = undefined;
-    this.wordsToEnter.push(WORDS_EN[this.enteredWords.length + this.wordsToEnter.length]);
+    this.wordsToEnter.push(this.wordsList[this.enteredWords.length + this.wordsToEnter.length]);
   }
 
   private startInterval(): void {
-    this.timerIntervalSub?.unsubscribe();
+    this.stopInterval();
     const timerTotalSeconds = 60;
     let timerLeftSeconds = timerTotalSeconds;
 
@@ -134,8 +172,16 @@ export class InputComponent implements OnDestroy {
         this.progressBarHiddenLengthPx = +(this.progressBarLengthPx * progressBarHiddenRatio).toFixed();
         this.parentCdRef.detectChanges();
       } else {
-        this.timerIntervalSub?.unsubscribe();
+        this.stopInterval();
+        this.restartText = randomItemFromArray(INSPIRATIONAL_PHRASES)
+        this.inputBlur();
+        this.cdRef.detectChanges();
       }
     });
+  }
+
+  private stopInterval(): void {
+    this.timerIntervalSub?.unsubscribe();
+    this.timerIntervalSub = undefined;
   }
 }
