@@ -13,7 +13,7 @@ import {
 } from "@angular/core";
 import {EnteredWord} from "@modules/typing-speed/interfaces";
 import {INSPIRATIONAL_PHRASES, WORDS_EN} from "@shared/constants";
-import {interval, startWith, SubscriptionLike} from "rxjs";
+import {SubscriptionLike, timer} from "rxjs";
 import {randomItemFromArray, shuffleArray} from "@shared/functions";
 
 @Component({
@@ -23,28 +23,24 @@ import {randomItemFromArray, shuffleArray} from "@shared/functions";
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InputComponent implements OnDestroy {
-  @Output() readonly onEnteredWordsUpdate = new EventEmitter<EnteredWord[]>();
-
   @ViewChild('inputRef', {static: true}) readonly inputElementRef!: ElementRef<HTMLInputElement>;
-  @ViewChild('progressBarRef', {static: true}) readonly progressBarElementRef!: ElementRef<SVGElement>;
-
-  @HostBinding('style.--progressBarHiddenLengthPx')
-  progressBarHiddenLengthPx = 0;
+  @Output() readonly onEnteredWordsUpdate = new EventEmitter<EnteredWord[]>();
 
   readonly wordsList = shuffleArray(WORDS_EN);
   readonly wordsToEnter = this.wordsList.slice(0, 15);
   enteredWords?: EnteredWord[];
   enteringWord?: { entered: string, toEnter: string, target: string, correct?: boolean };
-  timerIntervalSub?: SubscriptionLike;
   restartText?: string;
 
-  constructor(@SkipSelf() private readonly parentCdRef: ChangeDetectorRef, private readonly cdRef: ChangeDetectorRef) {
-  }
+  @HostBinding('style.--progress-bar-scale-x')
+  private progressBarScaleX?: number;
 
-  @HostListener('window:resize')
-  @HostBinding('style.--progressBarLengthPx')
-  get progressBarLengthPx(): number {
-    return (this.progressBarElementRef.nativeElement.clientWidth + this.progressBarElementRef.nativeElement.clientHeight) * 2;
+  @HostBinding('style.--progress-bar-scale-x-animation-seconds')
+  private progressBarScaleXAnimationSeconds?: number;
+
+  private timerSub?: SubscriptionLike;
+
+  constructor(@SkipSelf() private readonly parentCdRef: ChangeDetectorRef, private readonly cdRef: ChangeDetectorRef) {
   }
 
   get disabled(): boolean {
@@ -52,7 +48,7 @@ export class InputComponent implements OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.stopInterval();
+    this.dropTimer();
   }
 
   onInput(): void {
@@ -67,8 +63,8 @@ export class InputComponent implements OnDestroy {
     }
 
     this.addLetterToEnteringWord(letter);
-    if (!this.timerIntervalSub) {
-      this.startInterval();
+    if (!this.timerSub) {
+      this.runTimer();
     }
   }
 
@@ -92,7 +88,8 @@ export class InputComponent implements OnDestroy {
     this.enteredWords = undefined;
     this.enteringWord = undefined;
     this.onEnteredWordsUpdate.emit(this.enteredWords);
-    this.progressBarHiddenLengthPx = 0;
+    this.progressBarScaleXAnimationSeconds = 0.5;
+    this.progressBarScaleX = 1;
     this.restartText = undefined;
   }
 
@@ -159,29 +156,22 @@ export class InputComponent implements OnDestroy {
     this.wordsToEnter.push(this.wordsList[this.enteredWords.length + this.wordsToEnter.length]);
   }
 
-  private startInterval(): void {
-    this.stopInterval();
-    const timerTotalSeconds = 60;
-    let timerLeftSeconds = timerTotalSeconds;
+  private runTimer(): void {
+    this.dropTimer();
+    this.progressBarScaleXAnimationSeconds = 60;
+    this.progressBarScaleX = 0;
+    const timerMilliseconds = 60000;
 
-    this.timerIntervalSub = interval(1000).pipe(startWith(null)).subscribe(() => {
-      if (timerLeftSeconds) {
-        timerLeftSeconds -= 1;
-
-        const progressBarHiddenRatio = 1 - timerLeftSeconds / timerTotalSeconds;
-        this.progressBarHiddenLengthPx = +(this.progressBarLengthPx * progressBarHiddenRatio).toFixed();
-        this.parentCdRef.detectChanges();
-      } else {
-        this.stopInterval();
-        this.restartText = randomItemFromArray(INSPIRATIONAL_PHRASES)
-        this.inputBlur();
-        this.cdRef.detectChanges();
-      }
+    this.timerSub = timer(timerMilliseconds).subscribe(() => {
+      this.dropTimer();
+      this.inputBlur();
+      this.restartText = randomItemFromArray(INSPIRATIONAL_PHRASES)
+      this.cdRef.detectChanges();
     });
   }
 
-  private stopInterval(): void {
-    this.timerIntervalSub?.unsubscribe();
-    this.timerIntervalSub = undefined;
+  private dropTimer(): void {
+    this.timerSub?.unsubscribe();
+    this.timerSub = undefined;
   }
 }

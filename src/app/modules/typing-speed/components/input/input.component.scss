@@ -1,6 +1,4 @@
 :host {
-  --progress-bar-width: 0.4rem;
-
   position: relative;
   cursor: text;
   display: flex;
@@ -9,7 +7,8 @@
   width: 100%;
   height: 10rem;
   box-shadow: 0 0 1rem 0 rgba(0, 0, 0, 0.25);
-  border-radius: calc(var(--progress-bar-width) * 2);
+  border-radius: 1rem;
+  overflow: hidden;
   user-select: none;
 }
 
@@ -20,10 +19,8 @@ section {
   align-items: center;
   justify-content: center;
   background-color: var(--bg-secondary-color);
-  overflow: hidden;
   width: 100%;
   height: 100%;
-  border-radius: calc(var(--progress-bar-width) * 2);
 
   > input {
     border: none;
@@ -57,30 +54,16 @@ section {
       color: var(--accent-color);
     }
   }
-}
 
-// Progress Bar
-svg {
-  position: absolute;
-  left: 0;
-  top: 0;
-  height: 100%;
-  width: 100%;
-
-  rect {
-    fill: none;
-    width: calc(100% - var(--progress-bar-width));
-    height: calc(100% - var(--progress-bar-width));
-    stroke: var(--info-color);
-    stroke-width: var(--progress-bar-width);
-    stroke-linecap: round;
-    x: calc(var(--progress-bar-width) / 2);
-    y: calc(var(--progress-bar-width) / 2);
-    rx: calc(var(--progress-bar-width) * 1.5);
-    ry: calc(var(--progress-bar-width) * 1.5);
-    stroke-dasharray: var(--progressBarLengthPx);
-    stroke-dashoffset: var(--progressBarHiddenLengthPx);
-    transition: stroke-dashoffset 1s linear;
+  .progress {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 0.5rem;
+    border-radius: 0.5rem;
+    background-color: var(--info-color);
+    transform: scaleX(var(--progress-bar-scale-x));
+    transition: transform calc(var(--progress-bar-scale-x-animation-seconds) * 1s) linear;
   }
 }
 
@@ -93,6 +76,10 @@ svg {
   width: 100%;
   height: 100%;
   color: var(--text-secondary-color);
-  border-radius: calc(var(--progress-bar-width) * 2);
-  backdrop-filter: blur(0.2em);
+  background-color: rgba(255, 255, 255, 0.9);
+
+  @supports ((-webkit-backdrop-filter: none) or (backdrop-filter: none)) {
+    background-color: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(0.2em);
+  }
 }

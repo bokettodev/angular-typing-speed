@@ -18,11 +18,8 @@
     <!-- Words to enter -->
     <span *ngFor="let word of wordsToEnter" class="word">{{ word }}</span>
   </p>
+
+  <div class="progress"></div>
 </section>
 
-<!-- Progressbar -->
-<svg #progressBarRef height="100%" viewBox="0 0 100% 100%" width="100%" xmlns="http://www.w3.org/2000/svg">
-  <rect height="100%" width="100%"></rect>
-</svg>
-
-<h3 (click)="reset()" *ngIf="disabled" class="restart">{{ restartText }}</h3>
+<h3 (click)="reset()" *ngIf="disabled" class="restart" title="Click to try again">{{ restartText }}</h3>
