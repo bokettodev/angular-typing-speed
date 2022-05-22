@@ -1,5 +1,11 @@
 <article>
   <h1>How well do you type?</h1>
 
-  <ts-input></ts-input>
+  <ts-input (onEnteredWordsUpdate)="onEnteredWordsUpdate($event)"></ts-input>
+
+  <ts-statistics
+    [accuracyPercentage]="accuracyPercentage"
+    [charsPerMinute]="charsPerMinute"
+    [wordsPerMinute]="wordsPerMinute"
+  ></ts-statistics>
 </article>

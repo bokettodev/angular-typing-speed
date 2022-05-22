@@ -1,4 +1,4 @@
-<section (click)="inputElementRef.nativeElement.focus()">
+<section>
   <p class="words">
     <!-- Entered words -->
     <span *ngFor="let item of enteredWords" [class.word--incorrect]="!item.correct"
@@ -19,3 +19,9 @@
     <span *ngFor="let word of wordsToEnter" class="word">{{ word }}</span>
   </p>
 </section>
+
+<!-- Progressbar -->
+<svg #progressBarRef height="100%" viewBox="0 0 100% 100%" width="100%" xmlns="http://www.w3.org/2000/svg">
+  <rect height="100%" width="100%"></rect>
+</svg>
+

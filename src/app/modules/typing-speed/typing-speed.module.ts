@@ -1,9 +1,9 @@
 import {CommonModule} from '@angular/common';
 import {NgModule} from '@angular/core';
-import {InputComponent, TypingSpeedComponent} from './components';
+import {InputComponent, StatisticsComponent, TypingSpeedComponent} from './components';
 
 @NgModule({
-  declarations: [InputComponent, TypingSpeedComponent],
+  declarations: [InputComponent, StatisticsComponent, TypingSpeedComponent],
   imports: [CommonModule],
   exports: [TypingSpeedComponent],
 })
