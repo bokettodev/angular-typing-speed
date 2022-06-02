@@ -1,4 +1,6 @@
 :host {
+  --font-size: 3rem;
+
   position: relative;
   cursor: text;
   display: flex;
@@ -25,12 +27,12 @@ section {
   > input {
     border: none;
     width: var(--input-element-width);
-    font-size: 3rem;
+    font-size: var(--font-size);
   }
 
   .words {
     display: flex;
-    gap: 1rem;
+    gap: calc(var(--font-size) / 3);
     width: calc(50% - var(--input-element-width) / 2);
 
     &:first-child {
@@ -39,7 +41,7 @@ section {
   }
 
   .word {
-    font-size: 3rem;
+    font-size: var(--font-size);
     white-space: nowrap;
 
     &--entering {

@@ -1,11 +1,13 @@
+:host {
+  --amount-container-size: 7rem;
+}
+
 section {
   cursor: default;
   display: flex;
   gap: 1rem;
 
   .info-item {
-    --size: 7rem;
-
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -16,17 +18,18 @@ section {
       display: flex;
       align-items: center;
       justify-content: center;
-      width: var(--size);
-      height: var(--size);
+      width: var(--amount-container-size);
+      height: var(--amount-container-size);
       color: var(--text-secondary-color);
-      font-size: 3rem;
+      font-size: calc(var(--amount-container-size) / 2.5);
       font-weight: bold;
       background-color: var(--bg-secondary-color);
-      border-radius: calc(var(--size) / 3);
+      border-radius: calc(var(--amount-container-size) / 3);
     }
 
     &__title {
       color: var(--text-tertiary-color);
+      font-size: calc(var(--amount-container-size) / 5);
     }
   }
 }
