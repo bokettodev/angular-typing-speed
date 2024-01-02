@@ -6,13 +6,13 @@ import {
   EventEmitter,
   HostBinding,
   HostListener,
+  Input,
   OnDestroy,
   Output,
-  SkipSelf,
   ViewChild,
 } from '@angular/core';
 import { EnteredWord } from '@modules/typing-speed/interfaces/entered-word.interface';
-import { INSPIRATIONAL_PHRASES } from '@shared/constants';
+import { INSPIRATIONAL_PHRASES, WORDS_EN } from '@shared/constants';
 import { WORDS_RU } from '@shared/constants/words-ru.const';
 import { randomItemFromArray, shuffleArray } from '@shared/functions';
 import { SubscriptionLike, timer } from 'rxjs';
@@ -26,17 +26,26 @@ import { SubscriptionLike, timer } from 'rxjs';
 export class InputComponent implements OnDestroy {
   @ViewChild('inputRef', { static: true })
   readonly inputElementRef!: ElementRef<HTMLInputElement>;
+
+  @Input()
+  set selectedLang(selectedLang: string) {
+    this.wordsList = shuffleArray(selectedLang === 'EN' ? WORDS_EN : WORDS_RU);
+    this.wordsToEnter = this.wordsList.slice(0, 15);
+  }
   @Output() readonly onEnteredWordsUpdate = new EventEmitter<EnteredWord[]>();
 
-  readonly wordsList = shuffleArray(WORDS_RU);
-  readonly wordsToEnter = this.wordsList.slice(0, 15);
+  wordsList: string[] = [];
+  wordsToEnter: string[] = [];
+
   enteredWords?: EnteredWord[];
+
   enteringWord?: {
     entered: string;
     toEnter: string;
     target: string;
     correct?: boolean;
   };
+
   restartText?: string;
 
   @HostBinding('style.--progress-bar-scale-x')
@@ -47,10 +56,7 @@ export class InputComponent implements OnDestroy {
 
   private timerSub?: SubscriptionLike;
 
-  constructor(
-    @SkipSelf() private readonly parentCdRef: ChangeDetectorRef,
-    private readonly cdRef: ChangeDetectorRef
-  ) {}
+  constructor(private readonly cdRef: ChangeDetectorRef) {}
 
   get disabled(): boolean {
     return !!this.restartText;
@@ -188,6 +194,7 @@ export class InputComponent implements OnDestroy {
     this.timerSub = timer(timerMilliseconds).subscribe(() => {
       this.dropTimer();
       this.inputBlur();
+      this.wordsList = shuffleArray(this.wordsList);
       this.restartText = randomItemFromArray(INSPIRATIONAL_PHRASES);
       this.cdRef.detectChanges();
     });

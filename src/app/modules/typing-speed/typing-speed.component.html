@@ -1,7 +1,21 @@
 <article>
+  <div class="langs" tuiGroup [collapsed]="true">
+    <tui-radio-block
+      *ngFor="let lang of langs"
+      [hideRadio]="true"
+      [item]="lang"
+      [(ngModel)]="selectedLang"
+    >
+      {{ lang }}
+    </tui-radio-block>
+  </div>
+
   <h1>How well do you type?</h1>
 
-  <ts-input (onEnteredWordsUpdate)="onEnteredWordsUpdate($event)"></ts-input>
+  <ts-input
+    [selectedLang]="selectedLang"
+    (onEnteredWordsUpdate)="onEnteredWordsUpdate($event)"
+  ></ts-input>
 
   <ts-statistics
     [accuracyPercentage]="accuracyPercentage"

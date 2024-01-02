@@ -8,6 +8,9 @@ import { EnteredWord } from './interfaces/entered-word.interface';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TypingSpeedComponent {
+  readonly langs: string[] = ['EN', 'RU'];
+  selectedLang: string = 'EN';
+
   wordsPerMinute = 0;
   charsPerMinute = 0;
   accuracyPercentage = 0;
