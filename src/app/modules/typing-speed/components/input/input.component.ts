@@ -11,7 +11,7 @@ import {
   SkipSelf,
   ViewChild,
 } from '@angular/core';
-import { EnteredWord } from '@modules/typing-speed/interfaces';
+import { EnteredWord } from '@modules/typing-speed/interfaces/entered-word.interface';
 import { INSPIRATIONAL_PHRASES } from '@shared/constants';
 import { WORDS_RU } from '@shared/constants/words-ru.const';
 import { randomItemFromArray, shuffleArray } from '@shared/functions';
