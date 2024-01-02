@@ -9,12 +9,13 @@ import {
   OnDestroy,
   Output,
   SkipSelf,
-  ViewChild
-} from "@angular/core";
-import {EnteredWord} from "@modules/typing-speed/interfaces";
-import {INSPIRATIONAL_PHRASES, WORDS_EN} from "@shared/constants";
-import {SubscriptionLike, timer} from "rxjs";
-import {randomItemFromArray, shuffleArray} from "@shared/functions";
+  ViewChild,
+} from '@angular/core';
+import { EnteredWord } from '@modules/typing-speed/interfaces';
+import { INSPIRATIONAL_PHRASES } from '@shared/constants';
+import { WORDS_RU } from '@shared/constants/words-ru.const';
+import { randomItemFromArray, shuffleArray } from '@shared/functions';
+import { SubscriptionLike, timer } from 'rxjs';
 
 @Component({
   selector: 'ts-input',
@@ -23,13 +24,19 @@ import {randomItemFromArray, shuffleArray} from "@shared/functions";
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InputComponent implements OnDestroy {
-  @ViewChild('inputRef', {static: true}) readonly inputElementRef!: ElementRef<HTMLInputElement>;
+  @ViewChild('inputRef', { static: true })
+  readonly inputElementRef!: ElementRef<HTMLInputElement>;
   @Output() readonly onEnteredWordsUpdate = new EventEmitter<EnteredWord[]>();
 
-  readonly wordsList = shuffleArray(WORDS_EN);
+  readonly wordsList = shuffleArray(WORDS_RU);
   readonly wordsToEnter = this.wordsList.slice(0, 15);
   enteredWords?: EnteredWord[];
-  enteringWord?: { entered: string, toEnter: string, target: string, correct?: boolean };
+  enteringWord?: {
+    entered: string;
+    toEnter: string;
+    target: string;
+    correct?: boolean;
+  };
   restartText?: string;
 
   @HostBinding('style.--progress-bar-scale-x')
@@ -40,8 +47,10 @@ export class InputComponent implements OnDestroy {
 
   private timerSub?: SubscriptionLike;
 
-  constructor(@SkipSelf() private readonly parentCdRef: ChangeDetectorRef, private readonly cdRef: ChangeDetectorRef) {
-  }
+  constructor(
+    @SkipSelf() private readonly parentCdRef: ChangeDetectorRef,
+    private readonly cdRef: ChangeDetectorRef
+  ) {}
 
   get disabled(): boolean {
     return !!this.restartText;
@@ -112,12 +121,18 @@ export class InputComponent implements OnDestroy {
   private addLetterToEnteringWord(letter: string): void {
     if (!this.enteringWord) {
       const targetWord = this.wordsToEnter.shift()!;
-      this.enteringWord = {entered: letter, toEnter: targetWord, target: targetWord};
+      this.enteringWord = {
+        entered: letter,
+        toEnter: targetWord,
+        target: targetWord,
+      };
     } else {
       this.enteringWord.entered += letter;
     }
 
-    this.enteringWord.correct = this.enteringWord.target.slice(0, this.enteringWord.entered.length) === this.enteringWord.entered;
+    this.enteringWord.correct =
+      this.enteringWord.target.slice(0, this.enteringWord.entered.length) ===
+      this.enteringWord.entered;
 
     if (this.enteringWord.correct && this.enteringWord.toEnter) {
       this.enteringWord.toEnter = this.enteringWord.toEnter.slice(1);
@@ -129,13 +144,19 @@ export class InputComponent implements OnDestroy {
       return;
     }
 
-    if (this.enteringWord.entered === this.enteringWord.target.slice(0, this.enteringWord.entered.length)) {
-      const targetLetter = this.enteringWord.entered[this.enteringWord.entered.length - 1];
+    if (
+      this.enteringWord.entered ===
+      this.enteringWord.target.slice(0, this.enteringWord.entered.length)
+    ) {
+      const targetLetter =
+        this.enteringWord.entered[this.enteringWord.entered.length - 1];
       this.enteringWord.toEnter = `${targetLetter}${this.enteringWord.toEnter}`;
     }
     this.enteringWord.entered = this.enteringWord.entered.slice(0, -1);
 
-    this.enteringWord.correct = this.enteringWord.target.slice(0, this.enteringWord.entered.length) === this.enteringWord.entered;
+    this.enteringWord.correct =
+      this.enteringWord.target.slice(0, this.enteringWord.entered.length) ===
+      this.enteringWord.entered;
   }
 
   private completeEnteredWord(): void {
@@ -148,12 +169,14 @@ export class InputComponent implements OnDestroy {
     }
     this.enteredWords.push({
       word: this.enteringWord.entered,
-      correct: this.enteringWord.entered === this.enteringWord.target
+      correct: this.enteringWord.entered === this.enteringWord.target,
     });
 
     this.onEnteredWordsUpdate.emit(this.enteredWords);
     this.enteringWord = undefined;
-    this.wordsToEnter.push(this.wordsList[this.enteredWords.length + this.wordsToEnter.length]);
+    this.wordsToEnter.push(
+      this.wordsList[this.enteredWords.length + this.wordsToEnter.length]
+    );
   }
 
   private runTimer(): void {
@@ -165,7 +188,7 @@ export class InputComponent implements OnDestroy {
     this.timerSub = timer(timerMilliseconds).subscribe(() => {
       this.dropTimer();
       this.inputBlur();
-      this.restartText = randomItemFromArray(INSPIRATIONAL_PHRASES)
+      this.restartText = randomItemFromArray(INSPIRATIONAL_PHRASES);
       this.cdRef.detectChanges();
     });
   }
